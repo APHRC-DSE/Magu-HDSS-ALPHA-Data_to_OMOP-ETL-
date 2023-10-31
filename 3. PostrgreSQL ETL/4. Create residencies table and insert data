@@ -1,0 +1,231 @@
+BEGIN;
+CREATE TABLE native_tables.Residencies (
+  	idno BIGINT not NULL,
+	sex VARCHAR,
+	bdate VARCHAR,
+	residence VARCHAR, entry_date VARCHAR,
+	exit_date VARCHAR,
+	entry_type VARCHAR,
+	exit_type VARCHAR,
+  	hhold_id BIGINT,
+  	hhold_id_extra VARCHAR,
+	study_name VARCHAR,
+	start_date VARCHAR,
+	dob VARCHAR);
+END;
+
+--INSERT DATA TO RESIDENCIES TABLE 
+COPY native_tables.Residencies
+FROM 'D:\APHRC\LHS\OMOP ETL\KISESA DATASETS-20230324T073138Z-001\KISESA DATASETS\Residency.csv'
+DELIMITER ','
+CSV HEADER
+NULL 'NA';
+
+--INSERT DATA TO OMOP FROM SOURCE DATA
+--REMOVE CONSTRAINTS
+ALTER TABLE public.person DROP CONSTRAINT fpk_person_location_id;
+COMMIT;
+CREATE SEQUENCE public.person_id_seq;
+
+--INSERT DATA TO PERSON TABLE 
+ALTER TABLE public.person ALTER COLUMN year_of_birth DROP NOT NULL;
+
+BEGIN;
+INSERT INTO public.person
+(
+person_id,
+gender_concept_id,
+year_of_birth,
+month_of_birth,
+day_of_birth,
+birth_datetime,
+race_concept_id,
+ethnicity_concept_id,
+location_id,
+provider_id,
+care_site_id,
+person_source_value,
+gender_source_value,
+gender_source_concept_id,
+race_source_value,
+race_source_concept_id,
+ethnicity_source_value,
+ethnicity_source_concept_id
+)
+SELECT
+DISTINCT ON (idno)
+NEXTVAL('public.person_id_seq') AS person_id,
+CASE WHEN native_tables.residencies.sex::int = 1 THEN 8507
+ WHEN native_tables.residencies.sex::int = 2 THEN 8532
+ WHEN native_tables.residencies.sex::int = 9 THEN 0
+ ELSE 0
+END AS gender_concept_id,
+EXTRACT (YEAR FROM native_tables.residencies.dob:: DATE) AS year_of_birth,
+EXTRACT(MONTH FROM native_tables.residencies.dob:: DATE) AS month_of_birth,
+EXTRACT(DAY FROM native_tables.residencies.dob:: DATE) AS day_of_birth,
+native_tables.residencies.dob:: DATE AS birth_datetime,
+38003600 AS race_concept_id,
+38003564 AS ethnicity_concept_id,
+CAST(native_tables.residencies.hhold_id AS BIGINT) AS location_id,
+NULL AS provider_id,
+NULL AS care_site_id,
+CAST(native_tables.residencies.idno AS BIGINT) AS person_source_value,
+native_tables.residencies.sex::int AS gender_source_value,
+0 AS gender_source_concept_id,
+NULL AS race_source_value,
+0 AS race_source_concept_id,
+NULL AS ethnicity_source_value,
+0 AS ethnicity_source_concept_id
+FROM native_tables.residencies
+ORDER BY idno, entry_date DESC;
+END;
+
+--OBSERVATION PERIOD TABLE 
+CREATE SEQUENCE public.observation_period_id_seq;
+--alter not null constraint
+ALTER TABLE public.observation_period ALTER COLUMN observation_period_end_date DROP NOT NULL;
+
+BEGIN;
+INSERT INTO PUBLIC.observation_period
+(
+ observation_period_id,
+person_id,
+observation_period_start_date,
+ observation_period_end_date,
+ period_type_concept_id
+)
+SELECT
+ NEXTVAL('public.observation_period_id_seq') AS observation_period_id,
+ public.person.person_id AS person_id,
+ native_tables.residencies.entry_date::DATE AS observation_period_start_date,
+ native_tables.residencies.exit_date::DATE AS observation_period_end_date,
+ 44814723 AS period_type_concept_id
+FROM native_tables.residencies
+INNER JOIN public.person
+ON CAST(public.person.person_source_value AS BIGINT) = CAST(native_tables.residencies.idno AS BIGINT);
+END;
+
+COMMIT;
+--OBSERVATION TABLE 
+CREATE SEQUENCE public.observation_id_seq;
+--i)	Insert episode end/exit to convert to long format.
+BEGIN;
+INSERT INTO public.observation
+(
+ observation_id,
+ person_id,
+ observation_concept_id,
+ observation_date,
+ observation_datetime,
+ observation_type_concept_id,
+ value_as_number,
+ value_as_string,
+ value_as_concept_id,
+ qualifier_concept_id,
+ unit_concept_id,
+ provider_id,
+ visit_occurrence_id,
+ visit_detail_id,
+ observation_source_value,
+ observation_source_concept_id,
+ unit_source_value,
+ qualifier_source_value,
+ observation_event_id,
+ obs_event_field_concept_id
+)
+SELECT
+ NEXTVAL('public.observation_id_seq') AS observation_id,
+ public.person.person_id AS person_id,
+4295659 AS observation_concept_id,
+ native_tables.residencies.entry_date::DATE AS observation_date,
+ CASE WHEN native_tables.residencies.entry_date::TIMESTAMP IS NULL THEN '9999-12-31 00:00:00'
+ ELSE native_tables.residencies.entry_date::TIMESTAMP
+END AS observation_datetime,
+ 45905771 AS observation_type_concept_id,
+ NULL AS value_as_number,
+ NULL AS value_as_string,
+ CASE WHEN native_tables.residencies.entry_type = 'Baseline' THEN 8568
+	WHEN native_tables.residencies.entry_type = 'Birth' THEN 4216316
+	WHEN native_tables.residencies.entry_type = 'in-migration' THEN 45878942
+ELSE 0
+END AS value_as_concept_id,
+ CASE WHEN native_tables.residencies.entry_type = 'in-migraration' THEN 44804024
+ ELSE NULL
+END AS qualifier_concept_id,
+ 4299438 AS unit_concept_id,
+ NULL AS provider_id,
+ NULL AS visit_occurrence_id, -- Link it as foreign key to visit_occurence_id form the visit_occurence OMOP table
+ NULL AS visit_detail_id,
+native_tables.residencies.entry_type AS observation_source_value,
+ 0 AS observation_source_concept_id,
+ 'Individual' AS unit_source_value,
+ NULL AS qualifier_source_value,
+ NULL AS observation_event_id,
+ 0 AS obs_event_field_concept_id
+FROM native_tables.residencies
+INNER JOIN public.person
+ON CAST(public.person.person_source_value AS BIGINT) = CAST(native_tables.residencies.idno AS BIGINT);
+END;
+
+--ii)	Insert episode end/exit to convert to long format.
+ALTER TABLE public.observation ALTER COLUMN observation_date DROP NOT NULL;
+ALTER TABLE public.observation DROP CONSTRAINT fpk_observation_value_as_concept_id;
+
+BEGIN;
+INSERT INTO public.observation
+(
+ observation_id,
+ person_id,
+ observation_concept_id,
+ observation_date,
+ observation_datetime,
+ observation_type_concept_id,
+ value_as_number,
+ value_as_string,
+ value_as_concept_id,
+ qualifier_concept_id,
+ unit_concept_id,
+ provider_id,
+ visit_occurrence_id,
+ visit_detail_id,
+ observation_source_value,
+ observation_source_concept_id,
+ unit_source_value,
+ qualifier_source_value,
+ observation_event_id,
+ obs_event_field_concept_id
+)
+SELECT
+ NEXTVAL('public.observation_id_seq') AS observation_id,
+ public.person.person_id AS person_id,
+4295659 AS observation_concept_id,
+ residencies.exit_date::DATE AS observation_date,
+ CASE WHEN native_tables.residencies.exit_date::DATE IS NULL THEN '9999-12-31 00:00:00'
+ ELSE native_tables.residencies.exit_date::DATE
+END AS observation_datetime,
+ 45905771 AS observation_type_concept_id,
+ NULL AS value_as_number,
+ NULL AS value_as_string,
+ CASE WHEN native_tables.residencies.exit_type = 'Present in study' THEN  4181412
+ 	WHEN native_tables.residencies.exit_type = 'Death' THEN 4306655
+	WHEN native_tables.residencies.exit_type = 'out-migration' THEN 40377961
+	WHEN native_tables.residencies.exit_type = 'Lost to follow up' THEN 45618458
+ELSE 0
+END AS value_as_concept_id,
+CASE WHEN native_tables.residencies.exit_type = 'out-migration' THEN 44804024
+ ELSE NULL
+END AS qualifier_concept_id,
+ 4299438 AS unit_concept_id,
+ NULL AS provider_id,
+ NULL AS visit_occurrence_id, -- Link it as foreign key to visit_occurence_id form the visit_occurence OMOP table
+ NULL AS visit_detail_id,
+ native_tables.residencies.exit_type AS observation_source_value,
+ 0 AS observation_source_concept_id,
+ 'Individual' AS unit_source_value,
+ NULL AS qualifier_source_value,
+ NULL AS observation_event_id,
+ 0 AS obs_event_field_concept_id
+FROM native_tables.residencies
+INNER JOIN public.person
+ON CAST(public.person.person_source_value AS BIGINT) = CAST(native_tables.residencies.idno AS BIGINT);
+END;
