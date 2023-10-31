@@ -1,0 +1,50 @@
+---WEBAPI SCRIPT 
+BEGIN;
+INSERT INTO webapi.source_daimon (
+	source_daimon_id, 
+	source_id, 
+	daimon_type, 
+	table_qualifier, 
+	priority) 
+SELECT 
+4, 
+source_id, 0, 'Magu_CDM_Schema', 0
+FROM webapi.source
+WHERE source_key = 'ALPHA MAGU HIV';
+END;
+COMMIT;
+
+--RESULTS
+BEGIN;
+INSERT INTO webapi.source_daimon (
+	source_daimon_id, 
+	source_id, 
+	daimon_type, 
+	table_qualifier, 
+	priority) 
+SELECT 
+5, 
+source_id, 2, 'magu_results', 0
+FROM webapi.source
+WHERE source_key = 'ALPHA MAGU HIV';
+END;
+
+--VOCAB
+DELETE FROM webapi.source_daimon
+WHERE source_daimon_id = 6;
+BEGIN;
+INSERT INTO webapi.source_daimon (
+	source_daimon_id, 
+	source_id, 
+	daimon_type, 
+	table_qualifier, 
+	priority) 
+SELECT 
+6, 
+source_id, 1, 'vocab', 10
+FROM webapi.source
+WHERE source_key = 'ALPHA MAGU HIV';
+END;
+
+CLICK TO REFRESH ATLAS
+# http://127.0.0.1/WebAPI/source/refresh
