@@ -1,4 +1,4 @@
-# Generating the DDLs
+# Generating the DDLs (Data definition language)
 # This script will demonstrate how the CDM R package can be used to create the CDM tables in your environment. 
 # the script shows the executeDdl function that will connect up to your SQL client directly
 #(assuming your dbms is one of the supported dialects) and instantiate the tables through R.
