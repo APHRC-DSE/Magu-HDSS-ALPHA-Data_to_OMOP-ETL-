@@ -1,0 +1,27 @@
+BEGIN;
+Insert into public.cdm_source(
+	cdm_source_name, 
+	cdm_source_abbreviation,
+	cdm_holder,
+	source_description,
+	source_documentation_reference,
+	cdm_etl_reference,
+	source_release_date,
+	cdm_release_date,
+	cdm_version,
+	cdm_version_concept_id,
+	vocabulary_version
+)
+SELECT
+'CDM ALPHA MAGU 2023' AS cdm_source_name,
+'MAGU CDM' AS cdm_source_abbreviation,
+'OHDSI' AS cdm_holder,
+'ALPHA DATA -MAGU HDSS' AS source_description,
+'https://github.com/Chebet254/OMOP-ETLS' AS source_documentation_reference,
+'https://github.com/Chebet254/OMOP-ETLS' AS cdm_etl_reference,
+'23-07-31' AS source_release_date,
+'2023-08-01' AS cdm_release_date,
+5.4 AS cdm_version,
+756265 AS cdm_version_concept_id,
+'v5.0 31-MAY-23' AS vocabulary_version;
+END;
