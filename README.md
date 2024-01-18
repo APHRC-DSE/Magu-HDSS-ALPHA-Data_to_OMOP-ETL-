@@ -19,7 +19,7 @@ Rabbit in a hat, Athena and Usagi tools were used to create mappings from source
 
 3. Develop ETL (Extract Transform Load) pipeline:
 We used PostgreSQL to write SQL scripts for transforming source codes to OMOP terminologies.
-Penataho can equally be used for ETL
+Pentaho can equally be used for ETL
 
 4. Data Quality Assurance:
 OHDSI library for quality assurance of the CDM 'DataQualityDashboard' was installed and run against the OMOP database.
