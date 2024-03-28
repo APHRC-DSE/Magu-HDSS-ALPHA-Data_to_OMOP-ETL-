@@ -4,8 +4,11 @@
 #(assuming your dbms is one of the supported dialects) and instantiate the tables through R.
 
 #First, install the package from GitHub
-''install.packages("devtools")''
-''devtools::install_github("OHDSI/CommonDataModel")''
+```
+install.packages("devtools")
+devtools::install_github("OHDSI/CommonDataModel")
+```
+
 
 #List the currently supported SQL dialects
 CommonDataModel::listSupportedDialects()
