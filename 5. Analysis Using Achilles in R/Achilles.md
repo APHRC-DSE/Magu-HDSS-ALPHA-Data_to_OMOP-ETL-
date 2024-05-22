@@ -4,12 +4,12 @@ remotes::install_github("OHDSI/Achilles")
 library(remotes)
 ````
 #set JDBC drivers
-````
+````R
 Sys.setenv("DATABASECONNECTOR_JAR_FOLDER" = "c:/temp/jdbcDrivers")
 ````
 
 #create connection
-````
+````R
 connectiondetails <- DatabaseConnector::createConnectionDetails(
   dbms = "postgresql",
   server = "localhost/alpha",
@@ -20,11 +20,12 @@ connectiondetails <- DatabaseConnector::createConnectionDetails(
 )
 ````
 #set output folder 
-outputFolder <- "D:/APHRC/LHS/OMOP ETL/OMOP-ETLS github/output"
-
+````R
+outputFolder <- "output"
+````
 
 #run achilles
-````
+````R
 Achilles::achilles(connectionDetails = connectiondetails,
                    cdmDatabaseSchema = "public",
                    resultsDatabaseSchema = "achillesresults",  #no capital letters- brings issues with postgres
