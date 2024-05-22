@@ -25,7 +25,7 @@ resultsDatabaseSchema <- "magu_results" # database schema name of the results
 cdmSourceName <- "CDM ALPHA MAGU 2023" # a human readable name for your CDM source
 cdmVersion <- "5.4" # the CDM version you are targeting. Currently supports 5.2, 5.3, and 5.4
 ````
-# determine how many threads (concurrent SQL sessions) to use 
+#determine how many threads (concurrent SQL sessions) to use 
 ````R
 numThreads <- 1 
 
@@ -34,17 +34,17 @@ sqlOnly <- FALSE # set to TRUE if you just want to get the SQL scripts and not a
 sqlOnlyIncrementalInsert <- FALSE # set to TRUE if you want the generated SQL queries to calculate DQD 
 sqlOnlyUnionCount <- 1 
 
-# where should the results and logs go?
+#where should the results and logs go?
 outputFolder <- "D:/APHRC/LHS/OMOP ETL/OMOP-ETLS github/output"
 outputFile <- "results.json"
 
-# logging type 
+#logging type 
 verboseMode <- TRUE # set to FALSE if you don't want the logs to be printed to the console
 
-# write results to table? 
+#write results to table? 
 writeToTable <- TRUE # set to FALSE if you want to skip writing to a SQL table in the results schema
 
-# specify the name of the results table (used when writeToTable = TRUE and when sqlOnlyIncrementalInser
+#specify the name of the results table (used when writeToTable = TRUE and when sqlOnlyIncrementalInser
 writeTableName <- "dqdashboard_results"
 writeToCsv <- FALSE # set to FALSE if you want to skip writing to csv file
 csvFile <- "" # only needed if writeToCsv is set to TRUE
@@ -56,7 +56,7 @@ checkNames <- c() # Names can be found in inst/csv/OMOP_CDM_v5.3_Check_Descripti
 # which CDM tables to exclude? 
 tablesToExclude <- c("CONCEPT", "VOCABULARY", "CONCEPT_ANCESTOR", "CONCEPT_RELATIONSHIP", "CONCEPT_CLASS")
 ````
-# run the job                  
+#run the job                  
 ````R
 DataQualityDashboard::executeDqChecks(connectionDetails = connectionDetails,
                                       cdmDatabaseSchema = cdmDatabaseSchema,
