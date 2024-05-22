@@ -1,4 +1,9 @@
----WEBAPI SCRIPT 
+--add data entry to the webapi.source table
+
+--add in the table using the + button, editing the name source_id
+
+WEBAPI SCRIPT 
+````R
 BEGIN;
 INSERT INTO webapi.source_daimon (
 	source_daimon_id, 
@@ -12,9 +17,11 @@ source_id, 0, 'Magu_CDM_Schema', 0
 FROM webapi.source
 WHERE source_key = 'ALPHA MAGU HIV';
 END;
+````
 COMMIT;
 
---RESULTS
+RESULTS
+````R
 BEGIN;
 INSERT INTO webapi.source_daimon (
 	source_daimon_id, 
@@ -28,10 +35,9 @@ source_id, 2, 'magu_results', 0
 FROM webapi.source
 WHERE source_key = 'ALPHA MAGU HIV';
 END;
-
---VOCAB
-DELETE FROM webapi.source_daimon
-WHERE source_daimon_id = 6;
+````
+VOCAB
+````R
 BEGIN;
 INSERT INTO webapi.source_daimon (
 	source_daimon_id, 
@@ -45,6 +51,6 @@ source_id, 1, 'vocab', 10
 FROM webapi.source
 WHERE source_key = 'ALPHA MAGU HIV';
 END;
-
+````
 CLICK TO REFRESH ATLAS
 # http://127.0.0.1/WebAPI/source/refresh
