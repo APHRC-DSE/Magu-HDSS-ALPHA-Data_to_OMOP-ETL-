@@ -4,7 +4,9 @@
 remotes::install_github("OHDSI/DataQualityDashboard")
 library(DatabaseConnector)
 library(DataQualityDashboard)
- #CONNECTION DETAILS TO POSTGRES DB
+````
+#CONNECTION DETAILS TO POSTGRES DB
+````R
 connectionDetails <- DatabaseConnector::createConnectionDetails(
   dbms = "postgresql",
   user = "postgres",
@@ -17,14 +19,14 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(
 conn <- connect(connectionDetails)
 ````
 #set up variable params
-````
+````R
 cdmDatabaseSchema <- "public" # database schema name of the CDM
 resultsDatabaseSchema <- "magu_results" # database schema name of the results 
 cdmSourceName <- "CDM ALPHA MAGU 2023" # a human readable name for your CDM source
 cdmVersion <- "5.4" # the CDM version you are targeting. Currently supports 5.2, 5.3, and 5.4
 ````
 # determine how many threads (concurrent SQL sessions) to use 
-````
+````R
 numThreads <- 1 
 
 # specify if you want to execute the queries or inspect them 
