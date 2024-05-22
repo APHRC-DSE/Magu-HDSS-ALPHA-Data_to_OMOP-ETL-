@@ -1,5 +1,5 @@
 #DQD dashboard for ALPHA MAGU HIV DATA. 
-
+````R
 #install.packages("remotes")
 remotes::install_github("OHDSI/DataQualityDashboard")
 library(DatabaseConnector)
@@ -15,14 +15,16 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(
 )
 #check if the connection is working
 conn <- connect(connectionDetails)
-
+````
 #set up variable params
+````
 cdmDatabaseSchema <- "public" # database schema name of the CDM
 resultsDatabaseSchema <- "magu_results" # database schema name of the results 
 cdmSourceName <- "CDM ALPHA MAGU 2023" # a human readable name for your CDM source
 cdmVersion <- "5.4" # the CDM version you are targeting. Currently supports 5.2, 5.3, and 5.4
-
+````
 # determine how many threads (concurrent SQL sessions) to use 
+````
 numThreads <- 1 
 
 # specify if you want to execute the queries or inspect them 
@@ -51,9 +53,9 @@ checkLevels <- c("TABLE", "FIELD", "CONCEPT")
 checkNames <- c() # Names can be found in inst/csv/OMOP_CDM_v5.3_Check_Descriptions.csv
 # which CDM tables to exclude? 
 tablesToExclude <- c("CONCEPT", "VOCABULARY", "CONCEPT_ANCESTOR", "CONCEPT_RELATIONSHIP", "CONCEPT_CLASS")
-                     
-#--------------------------------------------------------------------------------------
-# run the job 
+````
+# run the job                  
+````R
 DataQualityDashboard::executeDqChecks(connectionDetails = connectionDetails,
                                       cdmDatabaseSchema = cdmDatabaseSchema,
                                       resultsDatabaseSchema = resultsDatabaseSchema,
@@ -72,17 +74,20 @@ DataQualityDashboard::executeDqChecks(connectionDetails = connectionDetails,
                                       checkLevels = checkLevels,
                                       tablesToExclude = tablesToExclude,
                                       checkNames = checkNames)
-
+````
 #INSPECT LOGS 
+````
 ParallelLogger::launchLogViewer(
   logFileName = file.path(outputFolder, cdmSourceName, 
   sprintf('log_DqDashboard_Synthea synthetic health database.txt', cdmSourceName)))
-
+````
 #VIEW RESULTS
+````
 #Launching Dashboard as Shiny App
 DataQualityDashboard::viewDqDashboard("D:/APHRC/LHS/OMOP ETL/OMOP-ETLS github/output/results.json")
-
+````
 #VIEWING CHECKS 
 #To see description of checks using R, execute the command below:
+````
 checks <- DataQualityDashboard::listDqChecks(cdmVersion = "5.4") # Put the version of the CDM you are using
-  
+````
